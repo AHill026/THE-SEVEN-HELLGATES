@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#171a17">
+  <title>Field Terminal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+      --ground: #171a17;
+      --panel: #202420;
+      --panel-raised: #282d28;
+      --terminal: #111411;
+      --line: #353b35;
+      --text: #e8e9df;
+      --muted: #92988d;
+      --green: #b7d77b;
+      --green-dim: #657f43;
+      --coral: #e48d72;
+      --mono: "DM Mono", "SFMono-Regular", Consolas, monospace;
+      --sans: "Space Grotesk", "Trebuchet MS", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      height: 100vh;
+      overflow: hidden;
+      color: var(--text);
+      background:
+        radial-gradient(ellipse at 18% 0%, rgba(183, 215, 123, .07), transparent 34rem),
+        var(--ground);
+      font-family: var(--sans);
+    }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    .app { display: grid; grid-template-rows: 58px minmax(0, 1fr); height: 100%; }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 22px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(23, 26, 23, .86);
+    }
+    .brand { display: flex; align-items: center; gap: 11px; min-width: 0; }
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 29px;
+      height: 29px;
+      border: 1px solid var(--green-dim);
+      border-radius: 7px;
+      color: var(--green);
+      font: 500 14px var(--mono);
+    }
+    .brand-name { font-size: 14px; font-weight: 600; letter-spacing: .02em; }
+    .brand-divider { width: 1px; height: 19px; margin: 0 3px; background: var(--line); }
+    .workspace-name { color: var(--muted); font: 12px var(--mono); white-space: nowrap; }
+    .top-actions { display: flex; align-items: center; gap: 13px; }
+    .connection { display: flex; align-items: center; gap: 7px; color: var(--muted); font: 11px var(--mono); }
+    .connection::before { width: 7px; height: 7px; border-radius: 50%; background: var(--green); content: ""; box-shadow: 0 0 10px rgba(183, 215, 123, .5); }
+    .icon-button {
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .icon-button:hover { border-color: #69705f; color: var(--text); }
+    .icon-button:focus-visible, .quick-command:focus-visible, input:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+    .layout { display: grid; grid-template-columns: 224px minmax(0, 1fr); min-height: 0; padding: 18px; gap: 18px; }
+    .sidebar { display: flex; flex-direction: column; min-height: 0; padding: 7px 5px 5px; }
+    .section-label { margin: 0 0 11px 9px; color: #777e73; font: 10px var(--mono); letter-spacing: .11em; text-transform: uppercase; }
+    .tree { display: grid; gap: 3px; }
+    .tree-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-height: 34px;
+      padding: 0 10px;
+      border-radius: 5px;
+      color: #c4c8bd;
+      font: 11px var(--mono);
+    }
+    .tree-item.root { color: var(--green); background: rgba(183, 215, 123, .08); }
+    .tree-item.indent { padding-left: 27px; color: var(--muted); }
+    .tree-symbol { width: 13px; color: var(--green-dim); text-align: center; }
+    .sidebar-rule { height: 1px; margin: 21px 8px; background: var(--line); }
+    .quick-list { display: grid; gap: 4px; }
+    .quick-command {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      padding: 8px 10px;
+      border: 0;
+      border-radius: 5px;
+      background: transparent;
+      color: #bfc4b8;
+      cursor: pointer;
+      text-align: left;
+      font: 11px var(--mono);
+    }
+    .quick-command:hover { background: var(--panel-raised); color: var(--green); }
+    .quick-command span:last-child { color: #72796e; font-size: 10px; }
+    .sandbox-note { margin: auto 8px 7px; padding: 12px 12px 11px; border: 1px solid var(--line); border-radius: 6px; background: rgba(32, 36, 32, .62); }
+    .note-title { display: flex; align-items: center; gap: 7px; color: var(--green); font: 10px var(--mono); }
+    .note-title::before { content: "//"; color: var(--green-dim); }
+    .sandbox-note p { margin: 8px 0 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+    .terminal-card { display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; border: 1px solid #3b413a; border-radius: 8px; background: var(--terminal); box-shadow: 0 22px 65px rgba(0, 0, 0, .22); }
+    .terminal-head { display: flex; align-items: center; justify-content: space-between; min-height: 47px; padding: 0 15px; border-bottom: 1px solid #2b302b; background: #1b1f1b; }
+    .tab { display: flex; align-items: center; align-self: stretch; gap: 9px; padding: 0 9px; border-bottom: 1px solid var(--green); color: #d7dbcf; font: 11px var(--mono); }
+    .tab-mark { color: var(--green); }
+    .head-meta { display: flex; align-items: center; gap: 13px; color: #81887c; font: 10px var(--mono); }
+    .head-meta span:first-child { color: #a7ad9f; }
+    .terminal-scroll { flex: 1; min-height: 0; overflow: auto; padding: 24px clamp(17px, 3.2vw, 42px) 20px; scrollbar-color: #424a40 transparent; scrollbar-width: thin; }
+    .output { display: grid; gap: 17px; max-width: 900px; font: 12px/1.7 var(--mono); }
+    .welcome { margin-bottom: 1px; }
+    .welcome-title { margin: 0; color: var(--green); font: 600 21px var(--sans); letter-spacing: .01em; }
+    .welcome-sub { margin: 5px 0 0; color: var(--muted); font-size: 11px; }
+    .welcome-rule { height: 1px; max-width: 520px; margin: 17px 0 13px; background: linear-gradient(90deg, #454e3e, transparent); }
+    .welcome-hint { color: #b9beb2; }
+    .welcome-hint code { color: var(--green); }
+    .entry { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: baseline; column-gap: 9px; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .prompt { color: var(--green); }
+    .prompt-path { color: #aab199; }
+    .command-text { color: #f0efe7; }
+    .result { margin: -12px 0 0; color: #b2b8ab; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .result.error { color: var(--coral); }
+    .result.success { color: var(--green); }
+    .result.dim { color: #788073; }
+    .directory { color: var(--green); }
+    .file { color: #d6d9cd; }
+    .input-row { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 9px; margin-top: 21px; }
+    .input-row .prompt { white-space: nowrap; }
+    #command-input { width: 100%; min-width: 0; padding: 0; border: 0; outline: 0; background: transparent; color: #f0efe7; caret-color: var(--green); font: 12px var(--mono); }
+    #command-input::placeholder { color: #596156; opacity: 1; }
+    .statusbar { display: flex; justify-content: space-between; gap: 12px; min-height: 31px; padding: 0 15px; border-top: 1px solid #2b302b; color: #777f73; font: 10px var(--mono); }
+    .status-left, .status-right { display: flex; align-items: center; gap: 14px; }
+    .statusbar b { color: #a5ac9e; font-weight: 400; }
+    @media (max-width: 720px) {
+      .app { grid-template-rows: 54px minmax(0, 1fr); }
+      .topbar { padding: 0 13px; }
+      .brand-divider, .workspace-name, .connection span, .sidebar, .head-meta span:last-child { display: none; }
+      .layout { grid-template-columns: minmax(0, 1fr); padding: 10px; }
+      .terminal-head { min-height: 43px; padding: 0 11px; }
+      .head-meta { gap: 0; }
+      .terminal-scroll { padding: 20px 16px; }
+      .statusbar { padding: 0 10px; }
+      .status-left, .status-right { gap: 8px; }
+    }
+    @media (max-width: 390px) {
+      .brand-name { font-size: 13px; }
+      .status-right span:first-child { display: none; }
+      .output, #command-input { font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">&gt;_</div>
+        <span class="brand-name">Field Terminal</span>
+        <span class="brand-divider" aria-hidden="true"></span>
+        <span class="workspace-name">/home/runner/workspace</span>
+      </div>
+      <div class="top-actions">
+        <div class="connection"><span>Sandbox online</span></div>
+        <button class="icon-button" id="clear-button" type="button" title="Clear terminal" aria-label="Clear terminal">⌫</button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar" aria-label="Workspace shortcuts">
+        <p class="section-label">Workspace</p>
+        <div class="tree">
+          <div class="tree-item root"><span class="tree-symbol">▾</span> workspace</div>
+          <div class="tree-item indent"><span class="tree-symbol">▸</span> src</div>
+          <div class="tree-item indent"><span class="tree-symbol">▸</span> notes</div>
+          <div class="tree-item indent"><span class="tree-symbol">·</span> README.md</div>
+        </div>
+        <div class="sidebar-rule"></div>
+        <p class="section-label">Quick commands</p>
+        <div class="quick-list">
+          <button class="quick-command" type="button" data-command="help"><span>help</span><span>commands</span></button>
+          <button class="quick-command" type="button" data-command="ls -la"><span>ls -la</span><span>list files</span></button>
+          <button class="quick-command" type="button" data-command="cat README.md"><span>cat README.md</span><span>read file</span></button>
+          <button class="quick-command" type="button" data-command="neofetch"><span>neofetch</span><span>system</span></button>
+        </div>
+        <div class="sandbox-note">
+          <div class="note-title">Isolated environment</div>
+          <p>Commands run in a virtual workspace. Your device and files stay untouched.</p>
+        </div>
+      </aside>
+
+      <main class="terminal-card" aria-label="Terminal emulator">
+        <div class="terminal-head">
+          <div class="tab"><span class="tab-mark">●</span><span>runner@field</span></div>
+          <div class="head-meta"><span>bash-compatible</span><span>UTF-8</span></div>
+        </div>
+        <section class="terminal-scroll" id="terminal-scroll" aria-label="Terminal output" aria-live="polite">
+          <div class="output" id="output">
+            <div class="welcome">
+              <h1 class="welcome-title">A quiet place to get things done.</h1>
+              <p class="welcome-sub">FIELD TERMINAL <span aria-hidden="true">/</span> ISOLATED WORKSPACE <span aria-hidden="true">/</span> SESSION 001</p>
+              <div class="welcome-rule"></div>
+              <div class="welcome-hint">Type <code>help</code> to see available commands, or start with <code>ls</code>.</div>
+            </div>
+          </div>
+          <form class="input-row" id="command-form" autocomplete="off">
+            <label class="prompt" for="command-input"><span class="prompt-path" id="prompt-path">~/workspace</span> $</label>
+            <input id="command-input" name="command" type="text" spellcheck="false" autocapitalize="off" placeholder="Enter a command..." aria-label="Command">
+          </form>
+        </section>
+        <footer class="statusbar">
+          <div class="status-left"><span>branch <b>main</b></span><span>env <b>sandbox</b></span></div>
+          <div class="status-right"><span id="clock">--:--:--</span><span>Ln 1, Col 1</span></div>
+        </footer>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const root = "/home/runner/workspace";
+    let currentDirectory = root;
+    const commandHistory = [];
+    let historyIndex = 0;
+    const directories = new Set([
+      "/", "/home", "/home/runner", root,
+      `${root}/src`, `${root}/notes`
+    ]);
+    const files = new Map([
+      [`${root}/README.md`, "# THE-SEVEN-HELLGATES\nOriginal dark-fantasy action game starring Azrael.\n"],
+      [`${root}/src/hellgate.js`, "const protagonist = 'Azrael';\n\nexport function enterHellgate(gate) {\n  return { gate, sealed: false };\n}\n"],
+      [`${root}/notes/field-log.txt`, "FIELD LOG 001\nThe path is quiet. The gates are not.\n"]
+    ]);
+    const output = document.getElementById("output");
+    const input = document.getElementById("command-input");
+    const terminalScroll = document.getElementById("terminal-scroll");
+    const promptPath = document.getElementById("prompt-path");
+
+    function displayPath(path) {
+      return path === root ? "~/workspace" : path.startsWith(`${root}/`) ? `~/workspace/${path.slice(root.length + 1)}` : path;
+    }
+
+    function resolvePath(path) {
+      if (!path || path === "~") return root;
+      const base = path.startsWith("/") ? [] : currentDirectory.split("/").filter(Boolean);
+      const parts = path.startsWith("/") ? path.split("/").filter(Boolean) : path.split("/");
+      for (const part of parts) {
+        if (!part || part === ".") continue;
+        if (part === "~") {
+          base.splice(0, base.length, "home", "runner", "workspace");
+        } else if (part === "..") {
+          base.pop();
+        } else {
+          base.push(part);
+        }
+      }
+      return `/${base.join("/")}`;
+    }
+
+    function tokenize(source) {
+      const tokens = [];
+      let token = "";
+      let quote = "";
+      let escaped = false;
+      for (const character of source) {
+        if (escaped) {
+          token += character;
+          escaped = false;
+        } else if (character === "\\" && quote !== "'") {
+          escaped = true;
+        } else if (quote) {
+          if (character === quote) quote = "";
+          else token += character;
+        } else if (character === "'" || character === '"') {
+          quote = character;
+        } else if (/\s/.test(character)) {
+          if (token) tokens.push(token);
+          token = "";
+        } else {
+          token += character;
+        }
+      }
+      if (escaped) token += "\\";
+      if (token) tokens.push(token);
+      return tokens;
+    }
+
+    function addEntry(command, result, resultClass = "") {
+      const entry = document.createElement("div");
+      entry.className = "entry";
+      const prompt = document.createElement("span");
+      prompt.className = "prompt";
+      prompt.textContent = `${displayPath(currentDirectory)} $`;
+      const commandText = document.createElement("span");
+      commandText.className = "command-text";
+      commandText.textContent = command;
+      entry.append(prompt, commandText);
+      output.append(entry);
+      if (result !== null && result !== "") {
+        const resultElement = document.createElement("div");
+        resultElement.className = `result ${resultClass}`.trim();
+        resultElement.textContent = result;
+        output.append(resultElement);
+      }
+      terminalScroll.scrollTop = terminalScroll.scrollHeight;
+    }
+
+    function listDirectory(path, showHidden) {
+      if (!directories.has(path)) return { error: `ls: cannot access '${path}': No such directory` };
+      const names = new Set();
+      const prefix = path === "/" ? "/" : `${path}/`;
+      for (const directory of directories) {
+        if (directory === path || !directory.startsWith(prefix)) continue;
+        const rest = directory.slice(prefix.length);
+        if (!rest.includes("/")) names.add(`${rest}/`);
+      }
+      for (const file of files.keys()) {
+        if (!file.startsWith(prefix)) continue;
+        const rest = file.slice(prefix.length);
+        if (!rest.includes("/")) names.add(rest);
+      }
+      const sorted = [...names].filter(name => showHidden || !name.startsWith(".")).sort((a, b) => a.localeCompare(b));
+      return { result: sorted.length ? sorted.join("    ") : "(empty directory)" };
+    }
+
+    function runCommand(source) {
+      const tokens = tokenize(source);
+      const [command, ...args] = tokens;
+      if (!command) return { result: null };
+      switch (command) {
+        case "help":
+          return { result: [
+            "Available commands",
+            "  help                  show this list",
+            "  ls [-la] [path]       list directory contents",
+            "  cd [path]             change directory",
+            "  pwd                   print working directory",
+            "  cat <file>            print a file",
+            "  echo <text>           print text",
+            "  touch <file>          create an empty file",
+            "  mkdir <dir>           create a directory",
+            "  rm <file>             remove a virtual file",
+            "  date                  show local date and time",
+            "  whoami | uname        show session details",
+            "  history               show recent commands",
+            "  clear                 clear the terminal",
+            "  neofetch              show environment summary",
+            "Commands only affect this in-memory sandbox."
+          ].join("\n") };
+        case "pwd":
+          return { result: currentDirectory };
+        case "whoami":
+          return { result: "runner" };
+        case "uname":
+          return { result: args.includes("-a") ? "FieldOS sandbox 1.0.0 browser x86_64" : "FieldOS" };
+        case "date":
+          return { result: new Date().toString() };
+        case "echo":
+          return { result: args.join(" ") };
+        case "ls": {
+          const showHidden = args.some(arg => arg.startsWith("-") && arg.includes("a"));
+          const target = args.find(arg => !arg.startsWith("-"));
+          const path = target ? resolvePath(target) : currentDirectory;
+          const listing = listDirectory(path, showHidden);
+          return listing.error ? { result: listing.error, className: "error" } : listing;
+        }
+        case "cd": {
+          const path = resolvePath(args[0] || root);
+          if (!directories.has(path)) return { result: `cd: no such directory: ${args[0] || path}`, className: "error" };
+          currentDirectory = path;
+          promptPath.textContent = displayPath(currentDirectory);
+          return { result: null };
+        }
+        case "cat": {
+          if (!args.length) return { result: "cat: missing file operand", className: "error" };
+          const path = resolvePath(args[0]);
+          if (!files.has(path)) return { result: `cat: ${args[0]}: No such file`, className: "error" };
+          return { result: files.get(path) };
+        }
+        case "touch": {
+          if (!args.length) return { result: "touch: missing file operand", className: "error" };
+          const path = resolvePath(args[0]);
+          if (!directories.has(path.slice(0, path.lastIndexOf("/")) || "/")) return { result: `touch: ${args[0]}: parent directory does not exist`, className: "error" };
+          if (!directories.has(path)) files.set(path, files.get(path) || "");
+          return { result: null };
+        }
+        case "mkdir": {
+          if (!args.length) return { result: "mkdir: missing operand", className: "error" };
+          const path = resolvePath(args[0]);
+          if (!directories.has(path.slice(0, path.lastIndexOf("/")) || "/")) return { result: `mkdir: cannot create directory '${args[0]}': parent does not exist`, className: "error" };
+          if (directories.has(path) || files.has(path)) return { result: `mkdir: cannot create directory '${args[0]}': already exists`, className: "error" };
+          directories.add(path);
+          return { result: null };
+        }
+        case "rm": {
+          if (!args.length) return { result: "rm: missing operand", className: "error" };
+          const path = resolvePath(args[0]);
+          if (!files.delete(path)) return { result: `rm: cannot remove '${args[0]}': No such file`, className: "error" };
+          return { result: null };
+        }
+        case "history":
+          return { result: commandHistory.map((item, index) => `${String(index + 1).padStart(3, " ")}  ${item}`).join("\n") || "No commands yet." };
+        case "clear":
+          return { clear: true };
+        case "neofetch":
+          return { result: [
+            "     .---.       runner@field",
+            "    /     \\      ----------------",
+            "    |  .-.  |     OS: FieldOS Sandbox",
+            "    |  | |  |     Host: Browser",
+            "    |  '-'  |     Shell: field-sh 1.0",
+            "     \\     /      Workspace: ~/workspace",
+            "      '---'       Files: in-memory only"
+          ].join("\n") };
+        default:
+          return { result: `${command}: command not found. Type 'help' to see available commands.`, className: "error" };
+      }
+    }
+
+    document.getElementById("command-form").addEventListener("submit", event => {
+      event.preventDefault();
+      const source = input.value.trim();
+      if (!source) return;
+      commandHistory.push(source);
+      historyIndex = commandHistory.length;
+      const response = runCommand(source);
+      if (response.clear) {
+        output.replaceChildren();
+      } else {
+        addEntry(source, response.result, response.className || "");
+      }
+      input.value = "";
+      terminalScroll.scrollTop = terminalScroll.scrollHeight;
+    });
+
+    input.addEventListener("keydown", event => {
+      if (event.key === "ArrowUp") {
+        event.preventDefault();
+        if (historyIndex > 0) input.value = commandHistory[--historyIndex];
+      } else if (event.key === "ArrowDown") {
+        event.preventDefault();
+        if (historyIndex < commandHistory.length - 1) input.value = commandHistory[++historyIndex];
+        else { historyIndex = commandHistory.length; input.value = ""; }
+      } else if (event.key === "Tab") {
+        event.preventDefault();
+        const current = input.value;
+        const lastSpace = current.lastIndexOf(" ");
+        const prefix = current.slice(lastSpace + 1);
+        const matches = [...directories, ...files.keys()].map(path => path.startsWith(`${currentDirectory}/`) ? path.slice(currentDirectory.length + 1) : path).filter(path => path.split("/").length === 1 && path.startsWith(prefix));
+        if (matches.length === 1) input.value = `${current.slice(0, lastSpace + 1)}${matches[0].replace(/\/$/, "")}`;
+      } else if (event.ctrlKey && event.key.toLowerCase() === "l") {
+        event.preventDefault();
+        output.replaceChildren();
+      }
+    });
+
+    document.getElementById("clear-button").addEventListener("click", () => {
+      output.replaceChildren();
+      input.focus();
+    });
+
+    document.querySelectorAll("[data-command]").forEach(button => {
+      button.addEventListener("click", () => {
+        input.value = button.dataset.command;
+        input.focus();
+        input.setSelectionRange(input.value.length, input.value.length);
+      });
+    });
+
+    function updateClock() {
+      document.getElementById("clock").textContent = new Date().toLocaleTimeString([], { hour12: false });
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+    input.focus();
+  </script>
+</body>
+</html>
