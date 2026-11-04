@@ -1,11 +1,584 @@
-THE-SEVEN-HELLGATES/
-│
-├── index.html
-├── main.js
-├── package.json
-├── systems/
-│   ├── game-integration.js
-│   ├── challenge-mode-system.js
-│   └── progression-system.js
-│
-└── cinematic-trailer.html   ← ADD THIS HERE
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>THE SEVEN HELLGATES — Official Cinematic Reveal</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#020204;color:#eee;font-family:Georgia,serif}
+#stage{position:fixed;inset:0}
+canvas{display:block;width:100%;height:100%}
+#grain{pointer-events:none;position:fixed;inset:0;opacity:.13;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.32'/%3E%3C/svg%3E")}
+#vignette{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse,transparent 35%,rgba(0,0,0,.8) 100%)}
+#copy{position:fixed;left:8%;right:8%;top:50%;transform:translateY(-50%);text-align:center;pointer-events:none;text-shadow:0 3px 20px #000;opacity:0;transition:opacity 1.2s}
+#copy .eyebrow{font:11px Arial,sans-serif;letter-spacing:.55em;color:#c6a7a0;margin-bottom:18px}
+#copy .line{font-size:clamp(20px,3vw,42px);letter-spacing:.12em;line-height:1.35;color:#eee}
+#title{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;opacity:0;pointer-events:none;background:radial-gradient(ellipse,rgba(30,0,3,.12),rgba(0,0,0,.75));transition:opacity 2s}
+#title h1{font-size:clamp(32px,7vw,88px);letter-spacing:.12em;line-height:1.05;margin:0;color:#a51d29;text-shadow:0 0 12px #69000b,0 0 45px #340006}
+#title .sub{font:12px Arial,sans-serif;letter-spacing:.42em;margin-top:22px;color:#ddd}
+#title .tag{font-size:clamp(12px,1.5vw,18px);font-style:italic;letter-spacing:.12em;line-height:1.8;margin-top:38px;color:#a32631;max-width:850px;padding:0 20px}
+#controls{position:fixed;inset:auto 0 22px;display:flex;justify-content:center;gap:12px;align-items:center;font:12px Arial,sans-serif;color:#aaa}
+button{border:1px solid #6f222b;background:rgba(12,5,7,.88);color:#eee;padding:12px 20px;letter-spacing:.16em;cursor:pointer}
+button:hover{background:#381017}
+#progress{width:min(30vw,260px);height:2px;background:#34272a}
+#bar{height:100%;width:0;background:#a51d29}
+#hint{position:fixed;top:18px;left:20px;font:10px Arial,sans-serif;letter-spacing:.22em;color:#777}
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<div id="grain"></div>
+<div id="vignette"></div>
+<div id="hint">A STANDALONE CINEMATIC EXPERIENCE · 90 SECONDS</div>
+
+<div id="copy">
+  <div class="eyebrow" id="eyebrow"></div>
+  <div class="line" id="line"></div>
+</div>
+
+<div id="title">
+  <h1>THE SEVEN<br>HELLGATES</h1>
+  <div class="sub">AN ORIGINAL DARK-FANTASY ACTION EXPERIENCE</div>
+  <div class="tag">AND WHEN THE LAST GATE OPENS, EVEN THE HEAVENS SHALL FEAR WHAT RISES.</div>
+</div>
+
+<div id="controls">
+  <button id="play">▶ PLAY TRAILER</button>
+  <button id="restart">RESTART</button>
+  <div id="progress"><div id="bar"></div></div>
+  <span id="time">00:00</span>
+</div>
+
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+
+const stage=document.querySelector('#stage');
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x020204);
+scene.fog=new THREE.FogExp2(0x080509,.018);
+
+const camera=new THREE.PerspectiveCamera(48,innerWidth/innerHeight,.1,500);
+camera.position.set(0,7,30);
+
+const renderer=new THREE.WebGLRenderer({
+  antialias:true,
+  powerPreference:'high-performance'
+});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth,innerHeight);
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.15;
+stage.appendChild(renderer.domElement);
+
+scene.add(new THREE.HemisphereLight(0x657080,0x100609,1.15));
+
+const key=new THREE.DirectionalLight(0x9ca9c4,2.1);
+key.position.set(-12,22,10);
+key.castShadow=true;
+scene.add(key);
+
+const redLight=new THREE.PointLight(0x8d0715,0,100);
+redLight.position.set(0,10,-12);
+scene.add(redLight);
+
+const blueLight=new THREE.PointLight(0x8bbcff,0,55);
+blueLight.position.set(0,5,3);
+scene.add(blueLight);
+
+const world=new THREE.Group();
+scene.add(world);
+
+const mats={
+  stone:new THREE.MeshStandardMaterial({color:0x242126,roughness:.94}),
+  dark:new THREE.MeshStandardMaterial({color:0x08080c,roughness:1}),
+  red:new THREE.MeshStandardMaterial({
+    color:0x3b080e,
+    emissive:0x65000b,
+    emissiveIntensity:1.5,
+    roughness:.5
+  }),
+  blue:new THREE.MeshStandardMaterial({
+    color:0x9bbdff,
+    emissive:0x477fff,
+    emissiveIntensity:3
+  }),
+  gold:new THREE.MeshStandardMaterial({
+    color:0x8b6a3a,
+    metalness:.7,
+    roughness:.35
+  })
+};
+
+function mesh(g,m,x,y,z,parent=world){
+  const o=new THREE.Mesh(g,m);
+  o.position.set(x,y,z);
+  o.castShadow=true;
+  o.receiveShadow=true;
+  parent.add(o);
+  return o;
+}
+
+// RUINED KINGDOM
+const floor=mesh(
+  new THREE.PlaneGeometry(180,180),
+  mats.dark,0,-.15,0
+);
+floor.rotation.x=-Math.PI/2;
+
+function tower(x,z,h=15){
+  mesh(new THREE.BoxGeometry(3,h,3),mats.stone,x,h/2,z);
+  mesh(new THREE.ConeGeometry(2.2,5,5),mats.dark,x,h+2.5,z);
+}
+
+for(let i=0;i<18;i++){
+  let a=i/18*Math.PI*2;
+  let r=24+Math.random()*7;
+  tower(
+    Math.cos(a)*r,
+    Math.sin(a)*r,
+    10+Math.random()*16
+  );
+}
+
+// CITY SILHOUETTES
+for(let i=0;i<34;i++){
+  let x=(Math.random()-.5)*90;
+  let z=-25-Math.random()*55;
+  let h=5+Math.random()*18;
+
+  mesh(
+    new THREE.BoxGeometry(
+      3+Math.random()*5,
+      h,
+      3+Math.random()*5
+    ),
+    mats.dark,x,h/2,z
+  );
+}
+
+// DISTANT BROKEN ARCH
+for(let x of [-8,8]){
+  mesh(new THREE.BoxGeometry(2,19,2),mats.stone,x,9,-24);
+}
+mesh(new THREE.BoxGeometry(18,2,2),mats.stone,0,19,-24);
+
+// THE SEVEN HELLGATES
+const gates=[];
+
+for(let i=0;i<7;i++){
+  let g=new THREE.Group();
+  g.position.set((i-3)*8,0,-42-Math.abs(i-3)*3);
+  world.add(g);
+
+  let frame=new THREE.MeshStandardMaterial({
+    color:0x25191d,
+    metalness:.6,
+    roughness:.55
+  });
+
+  mesh(new THREE.BoxGeometry(1.5,13,2),frame,-3.8,6.5,0,g);
+  mesh(new THREE.BoxGeometry(1.5,13,2),frame,3.8,6.5,0,g);
+  mesh(new THREE.BoxGeometry(9,1.5,2),frame,0,13,0,g);
+
+  let portal=mesh(
+    new THREE.PlaneGeometry(6.5,11),
+    new THREE.MeshBasicMaterial({
+      color:0x000000,
+      transparent:true,
+      opacity:0
+    }),
+    0,6.5,-.7,g
+  );
+
+  const glow=new THREE.PointLight(0xff172b,0,22);
+  glow.position.set(0,6,2);
+  g.add(glow);
+
+  gates.push({g,portal,glow});
+}
+
+// AZRAEL
+const az=new THREE.Group();
+world.add(az);
+az.position.set(0,0,2);
+
+mesh(new THREE.CapsuleGeometry(.85,3.2,5,8),mats.dark,0,2.2,0,az);
+mesh(new THREE.SphereGeometry(.78,20,16),mats.stone,0,4.5,0,az);
+mesh(new THREE.BoxGeometry(2.1,2.3,.8),mats.stone,0,2.6,0,az);
+mesh(new THREE.BoxGeometry(2.7,.55,1),mats.dark,0,3.6,0,az);
+
+// PALE BLUE EYES
+mesh(new THREE.SphereGeometry(0.09,12,8),mats.blue,-.25,4.55,.69,az);
+mesh(new THREE.SphereGeometry(0.09,12,8),mats.blue,.25,4.55,.69,az);
+
+// BATTLE SCARS
+for(let i=0;i<3;i++){
+  let scar=mesh(
+    new THREE.BoxGeometry(.045,.55,.04),
+    mats.red,
+    -.4+i*.16,4.45,.72,az
+  );
+  scar.rotation.z=-.3;
+}
+
+// SWORD
+const sword=mesh(
+  new THREE.BoxGeometry(.16,5,.25),
+  mats.gold,1.45,2.9,.1,az
+);
+sword.rotation.z=-.28;
+
+mesh(
+  new THREE.BoxGeometry(1.1,.18,.35),
+  mats.gold,1.45,1.1,.1,az
+);
+
+// DEMON BOSSES
+const bosses=[];
+
+for(let i=0;i<3;i++){
+  let b=new THREE.Group();
+  world.add(b);
+  b.position.set((i-1)*11,0,-18-i*7);
+
+  mesh(
+    new THREE.CapsuleGeometry(1.7,5,5,8),
+    mats.dark,0,3.8,0,b
+  );
+
+  mesh(
+    new THREE.SphereGeometry(1.5,16,12),
+    mats.stone,0,7.3,0,b
+  );
+
+  for(let s of [-1,1]){
+    mesh(
+      new THREE.ConeGeometry(.35,2,6),
+      mats.red,s*.8,9,0,b
+    );
+  }
+
+  bosses.push(b);
+}
+
+// THE WHITE-EYED GOD
+// Only the two eyes are visible. No body or identity is revealed.
+const eyesGroup=new THREE.Group();
+scene.add(eyesGroup);
+eyesGroup.position.set(0,5,-16);
+
+const white=new THREE.MeshBasicMaterial({color:0xffffff});
+
+mesh(
+  new THREE.SphereGeometry(.42,24,16),
+  white,-1.35,0,0,eyesGroup
+);
+mesh(
+  new THREE.SphereGeometry(.42,24,16),
+  white,1.35,0,0,eyesGroup
+);
+
+const eyeGlow=new THREE.PointLight(0xffffff,0,18);
+eyesGroup.add(eyeGlow);
+
+// ATMOSPHERIC PARTICLES
+const particleCount=1800;
+const positions=new Float32Array(particleCount*3);
+const velocities=[];
+
+for(let i=0;i<particleCount;i++){
+  positions[i*3]=(Math.random()-.5)*100;
+  positions[i*3+1]=Math.random()*28;
+  positions[i*3+2]=(Math.random()-.5)*110;
+  velocities.push(.15+Math.random()*.55);
+}
+
+const particleGeo=new THREE.BufferGeometry();
+particleGeo.setAttribute(
+  'position',
+  new THREE.BufferAttribute(positions,3)
+);
+
+const particles=new THREE.Points(
+  particleGeo,
+  new THREE.PointsMaterial({
+    color:0x9b7777,
+    size:.11,
+    transparent:true,
+    opacity:.55
+  })
+);
+scene.add(particles);
+
+// CINEMATIC TEXT
+const copy=document.querySelector('#copy');
+const eyebrow=document.querySelector('#eyebrow');
+const line=document.querySelector('#line');
+const title=document.querySelector('#title');
+
+const captions=[
+  [3,13,'THE KINGDOM IS SILENT','A crown lies buried beneath the ash.'],
+  [15,25,'THE SEALS ARE BREAKING','Seven gates. Seven wounds in creation.'],
+  [27,39,'THE ABYSS HAS ANSWERED','And its legions march beneath a dying sky.'],
+  [41,54,'NO MERCY. NO SALVATION.','Only steel, fire, and the will to endure.'],
+  [56,67,'SOMETHING OLDER THAN HELL','Has been watching from beyond the gates.'],
+  [70,77,'THE LAST GATE OPENS','']
+];
+
+function captionAt(t){
+  let c=captions.find(v=>t>=v[0]&&t<v[1]);
+
+  if(!c){
+    copy.style.opacity=0;
+    return;
+  }
+
+  eyebrow.textContent=c[2];
+  line.textContent=c[3];
+  copy.style.opacity=1;
+}
+
+// CAMERA CINEMATOGRAPHY
+const cameraKeys=[
+  [0,[0,8,34],[0,5,-20]],
+  [12,[-12,7,20],[0,5,-24]],
+  [25,[0,10,28],[0,5,-38]],
+  [39,[12,6,15],[0,4,-20]],
+  [53,[0,8,19],[0,5,-28]],
+  [67,[0,5,12],[0,5,-16]],
+  [78,[0,4,28],[0,5,-30]],
+  [90,[0,4,25],[0,4,-25]]
+];
+
+function smooth(a,b,x){
+  let t=THREE.MathUtils.clamp((x-a)/(b-a),0,1);
+  return t*t*(3-2*t);
+}
+
+function cameraAt(t){
+  let i=0;
+
+  while(i<cameraKeys.length-2&&t>cameraKeys[i+1][0]){
+    i++;
+  }
+
+  let a=cameraKeys[i];
+  let b=cameraKeys[i+1];
+  let f=smooth(a[0],b[0],t);
+
+  camera.position.set(
+    ...a[1].map((v,j)=>THREE.MathUtils.lerp(v,b[1][j],f))
+  );
+
+  camera.lookAt(
+    ...a[2].map((v,j)=>THREE.MathUtils.lerp(v,b[2][j],f))
+  );
+}
+
+// ORIGINAL SYNTHESIZED TRAILER SCORE
+let audioCtx=null;
+let master=null;
+let oscillators=[];
+let audioStarted=false;
+
+function startAudio(){
+  if(audioStarted)return;
+
+  audioStarted=true;
+
+  audioCtx=new (
+    window.AudioContext||window.webkitAudioContext
+  )();
+
+  master=audioCtx.createGain();
+  master.gain.value=.22;
+  master.connect(audioCtx.destination);
+
+  function drone(freq,type,gain){
+    let o=audioCtx.createOscillator();
+    let g=audioCtx.createGain();
+    let filter=audioCtx.createBiquadFilter();
+
+    o.type=type;
+    o.frequency.value=freq;
+
+    filter.type='lowpass';
+    filter.frequency.value=260;
+
+    g.gain.value=gain;
+
+    o.connect(filter);
+    filter.connect(g);
+    g.connect(master);
+
+    o.start();
+    oscillators.push({o,g});
+  }
+
+  drone(55,'sawtooth',.12);
+  drone(82.4,'triangle',.08);
+  drone(110,'sine',.05);
+}
+
+function impact(){
+  if(!audioCtx)return;
+
+  let now=audioCtx.currentTime;
+  let o=audioCtx.createOscillator();
+  let g=audioCtx.createGain();
+
+  o.type='sawtooth';
+  o.frequency.setValueAtTime(95,now);
+  o.frequency.exponentialRampToValueAtTime(28,now+1.1);
+
+  g.gain.setValueAtTime(.0001,now);
+  g.gain.exponentialRampToValueAtTime(.34,now+.025);
+  g.gain.exponentialRampToValueAtTime(.0001,now+1.4);
+
+  o.connect(g);
+  g.connect(master);
+
+  o.start(now);
+  o.stop(now+1.45);
+}
+
+let lastImpact=-1;
+let playing=false;
+let startTime=0;
+let elapsed=0;
+let raf=0;
+
+const bar=document.querySelector('#bar');
+const timeLabel=document.querySelector('#time');
+
+function format(t){
+  return '00:'+String(Math.floor(t)).padStart(2,'0');
+}
+
+// UPDATE CINEMATIC VISUALS
+function visuals(t){
+  cameraAt(t);
+  captionAt(t);
+
+  redLight.intensity=
+    20*smooth(14,23,t)*(1-smooth(32,38,t))+
+    12*smooth(38,44,t)*(1-smooth(54,58,t));
+
+  blueLight.intensity=
+    18*smooth(40,46,t)*(1-smooth(54,58,t));
+
+  gates.forEach((v,i)=>{
+    let f=smooth(17+i*.9,25+i*.9,t);
+
+    v.portal.material.opacity=.92*f;
+    v.portal.material.color.setHex(
+      i%2?0x250009:0x50000c
+    );
+
+    v.glow.intensity=18*f;
+  });
+
+  az.visible=t>8&&t<58;
+  az.rotation.y=.15*Math.sin(t*.35);
+
+  bosses.forEach((b,i)=>{
+    b.visible=t>35+i*2&&t<56;
+    b.rotation.y=Math.sin(t*.4+i)*.2;
+  });
+
+  eyesGroup.visible=t>62&&t<77;
+
+  eyeGlow.intensity=
+    35*smooth(63,68,t)*(1-smooth(75,77,t));
+
+  const pp=particles.geometry.attributes.position.array;
+
+  for(let i=0;i<particleCount;i++){
+    pp[i*3+1]-=velocities[i]*.018;
+
+    if(pp[i*3+1]<0){
+      pp[i*3+1]=28;
+    }
+  }
+
+  particles.geometry.attributes.position.needsUpdate=true;
+
+  if(t>13&&t<57&&Math.floor(t/5)!==lastImpact){
+    impact();
+    lastImpact=Math.floor(t/5);
+  }
+
+  if(t>=77){
+    title.style.opacity=String(smooth(77,81,t));
+    copy.style.opacity=0;
+  }else{
+    title.style.opacity=0;
+  }
+}
+
+// TRAILER PLAYBACK
+function frame(now){
+  if(!playing)return;
+
+  elapsed=Math.min(90,(now-startTime)/1000);
+
+  visuals(elapsed);
+
+  bar.style.width=(elapsed/90*100)+'%';
+  timeLabel.textContent=format(elapsed);
+
+  if(elapsed>=90){
+    playing=false;
+    document.querySelector('#play').textContent='▶ PLAY AGAIN';
+    return;
+  }
+
+  raf=requestAnimationFrame(frame);
+}
+
+function play(){
+  cancelAnimationFrame(raf);
+
+  startAudio();
+
+  if(audioCtx.state==='suspended'){
+    audioCtx.resume();
+  }
+
+  elapsed=0;
+  lastImpact=-1;
+  playing=true;
+  startTime=performance.now();
+
+  document.querySelector('#play').textContent='Ⅱ PLAYING';
+
+  frame(startTime);
+}
+
+document.querySelector('#play').addEventListener('click',play);
+document.querySelector('#restart').addEventListener('click',play);
+
+// CONTINUOUS RENDERING
+function render(){
+  renderer.render(scene,camera);
+  requestAnimationFrame(render);
+}
+render();
+
+// RESPONSIVE SCREEN
+addEventListener('resize',()=>{
+  camera.aspect=innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+
+  renderer.setSize(innerWidth,innerHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+});
+
+visuals(0);
+</script>
+</body>
+</html>
