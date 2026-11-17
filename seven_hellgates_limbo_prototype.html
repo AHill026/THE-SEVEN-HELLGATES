@@ -1,0 +1,485 @@
+
+<body>
+  <div id="game"></div>
+
+  <!-- GAME HUD -->
+  <!-- Keep your existing HUD, boss health bar, and controls here. -->
+
+  <!-- START MENU -->
+  <!-- Keep your existing start menu here. -->
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
+    }
+  }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+
+    // KEEP ALL YOUR EXISTING GAME IMPORTS HERE.
+
+    // KEEP YOUR EXISTING SCENE, CAMERA,
+    // RENDERER, CHARACTERS, WEAPONS,
+    // ENEMIES, AND ANIMATION CODE HERE.
+
+  </script>
+</body>
+
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+
+    // All your existing JavaScript imports go here.
+    // Your scene, camera, renderer, characters,
+    // weapons, enemies, and animate() function go here.
+
+  </script>
+</body>
+    // Your JavaScript imports and game code go here
+  </script>
+</body>
+    <h2>THE HOLLOW KING</h2>
+    <div class="boss-bar">
+      <div id="boss-health-fill">
+        
+
+        <div id="bossHUD" style=">
+
+          display:none;
+
+          position:fixed;
+
+          top:35px;
+
+          left:50%;
+
+          transform:translateX(-50%);
+
+          width:min(75%,520px);
+
+          z-index:20;
+
+          text-align:center;
+
+          color:white;
+
+          font-family:Georgia,serif;
+import { createLimboEnvironment } from './environments/limbo.js';
+
+const limboEnvironment = createLimboEnvironment(scene);
+limboEnvironment.visible = true;
+const gluttony = createGluttonyEnvironment(scene);
+
+const gluttonyEnvironment = gluttony.environment;
+        ">
+        
+THE SEVEN HELLGATES/
+│
+├── index.html
+│
+├── seven_hellgates_limbo_prototype.html │
+├── textures.js
+│
+├── azrael-character.js
+│
+├── weapons.js
+│
+├── environments/
+│   ├── limbo.js
+│   └── hellgates.js
+│
+└── textures/
+  ├── azrael_armor_albedo.png
+  ├── azrael_armor_normal.png
+  ├── azrael_armor_roughness.png
+  ├── azrael_armor_metallic.png
+  └── azrael_armor_emissive.png
+
+  ├── hellgates-main-theme.ogg
+
+  ├── infernal-ripper.wav
+
+  ├── demon-choir.wav
+
+  └── hell-drums.wav
+}
+
+          <div style=">
+          
+import { createGoreSystem } from './gore-const goreSystem = createGoreSystem(THREE, world);
+import { createInfernalRipper } from './infernal-ripper.js';
+import { createGameAudio } from './audio.js';
+import { createAzrael } from './azrael-character.js';
+function animate() {
+
+if (azrael && azrael.userData.animate) {
+ if (gluttony) {
+   gluttony.update(dt, clock.elapsedTime);
+ }azrael.userData.animate(clock.elapsedTime);
+} {// =====================================
+// AZRAEL CHARACTER ANIMATION
+// =====================================
+
+// =====================================
+// AZRAEL CHARACTER INITIALIZATION
+// =====================================
+
+const azrael = createAzrael();
+scene.add(azrael);
+
+// =====================================
+
+// AZRAEL CHARACTER
+
+// =====================================
+
+const azrael = createAzrael();
+
+scene.add(azrael);
+const gameAudio = createGameAudio();
+import {
+  initializeBossAudio,
+  playBossDeathSting
+} from './Audio.js2';
+
+            font-size:18px;
+
+            letter-spacing:4px;
+
+            color:#e6b3ff;
+
+            text-shadow:0 0 12px #a000ff;
+
+            margin-bottom:8px;
+
+          ">
+          
+
+            THE SOVEREIGN OF DESIRE
+
+          </div>
+
+          <div style="
+
+            height:15px;
+
+            background:#160813;
+
+            border:2px solid #9b4ab4;
+
+            box-shadow:0 0 14px #8300b5;
+
+            overflow:hidden;
+
+          ">
+
+            <div id="bossHealthFill" style="
+
+              width:100%;
+
+              height:100%;
+
+              background:linear-gradient(90deg,#52006e,#d000ff,#ff4a9b);
+
+              transition:width .2s;
+
+            "></div>
+
+          </div>
+
+          <div id="bossHealthText" style="
+
+            margin-top:5px;
+
+            font-size:12px;
+
+            letter-spacing:2px;
+
+          ">1200 / 1200</div>
+
+        </div>
+      </div>
+    </div>
+    <p id="boss-phase">PHASE I — THE IRON KING</p>
+  </div>
+  <div id="damageFlash"></
+  <const bossFill =
+    document.getElementById("boss-health-fill");
+
+  java.bossFill.style.width =
+    (hollowKing.userData.health /
+     hollowKing.userData.maxHealth * 100) + "%";
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; overflow: hidden; background: #050406; color: #f2e9dc; font-family: Georgia, "Times New Roman", serif; }
+  #game { position: fixed; inset: 0; }
+  #hud { position: fixed; inset: 0; pointer-events: none; text-shadow: 0 2px 8px #000; }
+  #topline { position:absolute; top:18px; left:22px; right:22px; display:flex; justify-content:space-between; align-items:flex-start; gap:16px; }
+  .brand { letter-spacing:.22em; font-size:12px; color:#d9b98b; }
+  .sub { margin-top:5px; font:11px Arial,sans-serif; letter-spacing:.16em; color:#a99b8d; }
+  #objective { text-align:right; font:12px Arial,sans-serif; color:#d9c9b6; letter-spacing:.08em; }
+  #bars { position:absolute; left:22px; bottom:22px; width:min(300px,44vw); }
+  .bar-label { display:flex; justify-content:space-between; margin:0 0 5px; font:11px Arial,sans-serif; letter-spacing:.12em; color:#d7c7b4; }
+  .bar { height:9px; background:#211b1c; border:1px solid #68544b; margin-bottom:10px; box-shadow:0 2px 10px #000; }
+  .fill { height:100%; width:100%; transition:width .15s; }
+  #healthFill { background:linear-gradient(90deg,#701b1b,#d64a32); }
+  #wrathFill { background:linear-gradient(90deg,#74340e,#e9a33c); }
+  #controls { position:absolute; right:22px; bottom:22px; text-align:right; font:11px/1.7 Arial,sans-serif; color:#c6b8aa; }
+  #crosshair { position:absolute; left:50%; top:50%; width:18px; height:18px; transform:translate(-50%,-50%); opacity:.85; }
+  #crosshair:before,#crosshair:after { content:""; position:absolute; background:#e7d6bd; box-shadow:0 0 6px #d65b32; }
+  #crosshair:before { width:1px; height:18px; left:8px; top:0; }
+  #crosshair:after { height:1px; width:18px; left:0; top:8px; }
+  #message { position:absolute; left:50%; top:17%; transform:translateX(-50%); text-align:center; font-size:19px; letter-spacing:.16em; color:#f0d2a4; opacity:0; transition:opacity .25s; }
+  #overlay { position:fixed; inset:0; display:grid; place-items:center; background:radial-gradient(ellipse at center,rgba(34,16,16,.76),rgba(0,0,0,.96)); z-index:5; }
+  #panel { width:min(560px, calc(100vw - 36px)); padding:30px; border:1px solid #795b45; background:linear-gradient(145deg,rgba(25,17,17,.97),rgba(7,7,9,.98)); box-shadow:0 20px 80px #000; text-align:center; }
+  h1 { margin:0; color:#e4c49a; font-size:clamp(28px,6vw,46px); letter-spacing:.12em; font-weight:normal; }
+  #panel p { color:#c8b9a8; font:13px/1.7 Arial,sans-serif; }
+  #start { pointer-events:auto; cursor:pointer; margin-top:12px; padding:13px 28px; color:#1a0e0b; background:linear-gradient(#e4bd83,#a66a3b); border:1px solid #f0d4a7; font-weight:bold; letter-spacing:.15em; }
+  #start:hover { filter:brightness(1.15); }
+  #hint { color:#a98f77 !important; font-size:11px !important; }
+  #damageFlash { position:fixed; inset:0; pointer-events:none; background:rgba(170,0,0,0); transition:background .12s; }
+  @media(max-width:600px) { #controls {font-size:9px} #topline{left:12px;right:12px} #bars{left:12px;bottom:12px} }
+</style>
+</head>
+<body>
+<div id="game"></div>
+<div id="hud">
+  <div id="topline">
+    <div><div class="brand">THE SEVEN HELLGATES</div><div class="sub">CHAPTER I — LIMBO: THE FORGOTTEN</div></div>
+    <div id="objective">PURGE THE LOST<br><span id="killCount">SOULS HARVESTED: 0</span></div>
+  </div>
+  <div id="crosshair"></div>
+  <div id="message"></div>
+  <div id="bars">
+    <div class="bar-label"><span>VITALITY</span><span id="healthText">100 / 100</span></div>
+    <div class="bar"><div id="healthFill" class="fill"></div></div>
+    <div class="bar-label"><span>WRATH</span><span id="wrathText">0 / 100</span></div>
+    <div class="bar"><div id="wrathFill" class="fill"></div></div>
+  </div>
+  <div id="controls">WASD — MOVE &nbsp; SHIFT — SPRINT<br>SPACE — JUMP<br>LEFT CLICK — CHAIN BLADE<br>RIGHT CLICK — WRATH STRIKE<br>ESC — PAUSE</div>
+  
+  const toothGroup = new THREE.Group();
+
+  const toothMaterial = new THREE.MeshStandardMaterial({
+    color: 0xb8b8b8,
+    metalness: 0.95,
+    roughness: 0.2,
+    emissive: 0x550000,
+    emissiveIntensity: 0.5
+  });
+
+  for (let i = 0; i < 12; i++) {
+
+    const tooth = new THREE.Mesh(
+      new THREE.ConeGeometry(0.055, 0.13, 4),
+      toothMaterial
+    );
+
+    const side = i % 2 === 0 ? 1 : -1;
+
+    tooth.position.set(
+      side * 0.115,
+      0.09,
+      -0.25 - Math.floor(i / 2) * 0.13
+    );
+
+    tooth.rotation.z = side === 1 ? -Math.PI / 2 : Math.PI / 2;
+
+    toothGroup.add(tooth);
+  }
+
+  saw.add(toothGroup);
+  
+</div>
+<div id="damageFlash"></div>
+<div id="overlay">
+  <div id="panel">
+    <div class="brand">A DARK FANTASY ACTION EXPERIENCE</div>
+    <h1>THE SEVEN<br>HELLGATES</h1>
+    <p>AZRAEL HAS FALLEN. HELL IS WAITING.</p>
+    <p>Enter the ruins of Limbo. Destroy the lost souls, harvest their essence, and survive the first descent.</p>
+      <button id="start">ENTER LIMBO</button>
+    
+    <p id="hint">Desktop controls recommended. Click the game to capture the mouse. Press ESC to pause.</p>
+  </div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
+  }
+}
+</script>
+  <script type="module">
+    const toothMaterial = new THREE.MeshStandardMaterial({
+      color: 0xb8b8b8,
+      metalness: 0.95,
+      roughness: 0.2,
+      emissive: 0x550000,
+      emissiveIntensity: 0.5
+    });
+import {
+  playMenuMusic,
+  fadeMenuMusic,
+  startLimboMusic,
+  stopLimboMusic,
+  playInfernalDrum,
+  setBossMusicPhase
+} from './audio.js';
+  
+    // Your existing game code continues below...
+  import {
+    createInfernalRipperCombat
+  } from './weapons.js';
+  import {
+      ARMOR_DATABASE,
+      awardBossArmor
+    } from './armor-system.js';
+  import {
+    createDevilGunRig
+  } from './devil-guns.js';
+  camera.add(weaponRig);
+  camera.add(soulReaperRig);
+ const infernalRipperRig =
+ createInfernalRipper(THREE);
+  camera.add(infernalRipperRig);
+  
+  window.addEventListener('pointerdown', (event) => {
+    if (event.button !== 0) return;
+    if (!state.active || state.gameOver) return;
+    if (state.activeWeapon !== 'infernalripper') return;
+
+    infernalRipperCombat.start();
+  });
+
+  window.addEventListener('pointerup', () => {
+    infernalRipperCombat.stop();
+  });
+
+  window.addEventListener('pointercancel', () => {
+    infernalRipperCombat.stop();
+  });
+
+  window.addEventListener('blur', () => {
+    infernalRipperCombat.stop();
+    function updateLustBoss(dt) {
+
+      // Boss movement
+
+      // Boss attack logic
+
+      // Boss phase transitions
+
+    }
+  });
+  
+  spawnBlood: goreSystem.spawnBlood,
+  const infernalRipperCombat = createInfernalRipperCombat({
+  spawnSparks: goreSystem.spawnSparks,
+  createBloodPool: goreSystem.createBloodPool,
+    camera,
+    state,
+    ripperRig: infernalRipperRig,
+    enemies: gluttonyEnemies,
+    spawnBurst,
+    showMessage
+  });
+  
+
+
+function equipWeapon(weapon) {
+  if (
+    weapon === 'soulreapers' &&
+    !state.soulReapersUnlocked
+  ) {
+    showMessage('SOUL REAPERS LOCKED');
+    return;
+  }
+
+  weaponRig.visible = false;
+  soulReaperRig.visible = false;
+  infernalRipperRig.visible = false;
+
+  state.activeWeapon = weapon;
+
+  if (weapon === 'hellchain') {
+    weaponRig.visible = true;
+    showMessage('HELLCHAIN BLADE EQUIPPED');
+  } 
+  else if (weapon === 'soulreapers') {
+    soulReaperRig.visible = true;
+    showMessage('SOUL REAPERS EQUIPPED');
+  } 
+  else if (weapon === 'infernalripper') {
+    infernalRipperRig.visible = true;
+    showMessage('INFERNAL RIPPER MK-I EQUIPPED');
+  }
+}
+  // Hide all weapons first
+  weaponRig.visible = false;
+  soulReaperRig.visible = false;
+  infernalRipperRig.visible = false;
+
+  // Equip selected weapon
+  if (weapon === 'hellchain') {
+    weaponRig.visible = true;
+  }
+
+  else if (weapon === 'soulreapers') {
+    soulReaperRig.visible = true;
+  }
+
+  else if (weapon === 'infernalripper') {
+    infernalRipperRig.visible = true;
+  }
+
+  else {
+    showMessage('UNKNOWN WEAPON');
+    weaponRig.visible = true;
+    showMessage(
+      weapon === 'hellchain'
+        ? 'HELLCHAIN BLADE EQUIPPED'
+        : weapon === 'soulreapers'
+        ? 'SOUL REAPERS EQUIPPED'
+        : 'INFERNAL RIPPER MK-I EQUIPPED'
+  );
+}
+
+// ============================================
+// CHAPTER ENVIRONMENT INITIALIZATION
+// ============================================
+
+const limboEnvironment = createLimboEnvironment(scene);
+
+const gluttony = createGluttonyEnvironment(scene);
+
+const gluttonyEnvironment = gluttony.environment;
+
+// ============================================
+// HELLGATES CHAPTER MANAGER
+// ============================================
+
+const hellgates = createHellgates({
+  limboEnvironment,
+  gluttonyEnvironment,
+
+  showMessage: (message) => {
+    if (typeof showMessage === 'function') {
+      showMessage(message);
+    } else {
+      console.log(message);
+    }
+  },
+
+  onChapterChange: (chapter) => {
+    console.log('Entered:', chapter.name);
+  }
+});
+
+// Start Chapter I
+hellgates.enterChapter(0);

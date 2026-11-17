@@ -1,0 +1,345 @@
+
+import * as THREE from 'three';
+
+// =====================================
+// CHAPTER I — LIMBO
+// CINEMATIC LIGHTING
+// =====================================
+import { createLimboEnvironment } from './environments/limbo.js';
+
+import { createGluttonyEnvironment } from './environments/gluttony.js';
+
+import { createHellgates } from './hellgates.js';
+export function createLimboEnvironment(scene) {
+  const environment = new THREE.Group();
+  environment.name = 'LimboEnvironment';
+
+  // Ambient visibility
+  const ambientLight = new THREE.AmbientLight(
+    0x9aabc5,
+    1.15
+  );
+  environment.add(ambientLight);
+
+  // Main moonlight
+  const moonLight = new THREE.DirectionalLight(
+    0xc4d9ff,
+    2.0
+  );
+  moonLight.position.set(-12, 25, 10);
+  environment.add(moonLight);
+
+  // Warm arena lighting
+  const fireLight = new THREE.PointLight(
+    0xff6428,
+    180,
+    55,
+    2
+  );
+  fireLight.position.set(0, 8, -12);
+  environment.add(fireLight);
+
+  // Secondary visibility light
+  const fillLight = new THREE.DirectionalLight(
+    0xffffff,
+    0.8
+  );
+  fillLight.position.set(12, 8, 15);
+  environment.add(fillLight);
+
+  // Boss visibility light
+  const bossLight = new THREE.SpotLight(
+    0xff3b19,
+    220,
+    45,
+    Math.PI / 4,
+    0.5,
+    1
+  );
+
+  bossLight.position.set(0, 18, -8);
+  bossLight.target.position.set(0, 3, -12);
+
+  environment.add(bossLight);
+  environment.add(bossLight.target);
+
+  // Add environment to the existing scene
+  scene.add(environment);
+
+  return environment;
+}
+
+
+import * as THREE from 'three';
+
+// ============================================
+// CHAPTER II — GLUTTONY
+// THE MAW OF ENDLESS HUNGER
+// ============================================
+
+export function createGluttonyEnvironment(scene) {
+  const environment = new THREE.Group();
+  environment.name = 'GluttonyEnvironment';
+
+  const embers = [];
+  const fleshGrowths = [];
+
+  // ============================================
+  // MATERIALS
+  // ============================================
+
+  const blackStone = new THREE.MeshStandardMaterial({
+    color: 0x171012,
+    roughness: 0.95
+  });
+
+  const corruptedStone = new THREE.MeshStandardMaterial({
+    color: 0x321014,
+    roughness: 0.85
+  });
+
+  const boneMaterial = new THREE.MeshStandardMaterial({
+    color: 0xaaa18b,
+    roughness: 0.9
+  });
+
+  const fleshMaterial = new THREE.MeshStandardMaterial({
+    color: 0x65131c,
+    roughness: 0.8,
+    emissive: 0x280006,
+    emissiveIntensity: 0.5
+  });
+
+  const lavaMaterial = new THREE.MeshStandardMaterial({
+    color: 0xff2400,
+    emissive: 0xff1000,
+    emissiveIntensity: 3
+  });
+
+  // ============================================
+  // ENVIRONMENT FLOOR
+  // ============================================
+
+  const floor = new THREE.Mesh(
+    new THREE.PlaneGeometry(100, 100),
+    blackStone
+  );
+
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.set(0, -0.08, -100);
+  environment.add(floor);
+
+  // ============================================
+  // CORRUPTED CATHEDRAL PILLARS
+  // ============================================
+
+  for (let i = 0; i < 8; i++) {
+    const x = i % 2 === 0 ? -12 : 12;
+    const z = -55 - Math.floor(i / 2) * 15;
+
+    const pillar = new THREE.Mesh(
+      new THREE.CylinderGeometry(1.1, 1.8, 15, 8),
+      corruptedStone
+    );
+
+    pillar.position.set(x, 7.5, z);
+    pillar.castShadow = true;
+    pillar.receiveShadow = true;
+    environment.add(pillar);
+
+    const rib = new THREE.Mesh(
+      new THREE.TorusGeometry(5, 0.45, 8, 16, Math.PI),
+      boneMaterial
+    );
+
+    rib.rotation.z = Math.PI;
+    rib.position.set(0, 13, z);
+    environment.add(rib);
+  }
+
+  // ============================================
+  // GIANT FEEDING PITS
+  // ============================================
+
+  for (let i = 0; i < 3; i++) {
+    const pit = new THREE.Mesh(
+      new THREE.CylinderGeometry(5, 6, 0.25, 32),
+      new THREE.MeshBasicMaterial({
+        color: 0x030000
+      })
+    );
+
+    pit.position.set(
+      i === 1 ? 0 : i === 0 ? -18 : 18,
+      0.02,
+      -65 - i * 17
+    );
+
+    environment.add(pit);
+
+    const rim = new THREE.Mesh(
+      new THREE.TorusGeometry(5.3, 0.5, 8, 32),
+      fleshMaterial
+    );
+
+    rim.rotation.x = Math.PI / 2;
+    rim.position.copy(pit.position);
+    rim.position.y += 0.2;
+    environment.add(rim);
+  }
+
+  // ============================================
+  // RIVERS OF INFERNAL DECAY
+  // ============================================
+
+  for (let i = 0; i < 2; i++) {
+    const river = new THREE.Mesh(
+      new THREE.PlaneGeometry(4, 85),
+      lavaMaterial
+    );
+
+    river.rotation.x = -Math.PI / 2;
+    river.position.set(
+      i === 0 ? -9 : 9,
+      0.08,
+      -95
+    );
+
+    environment.add(river);
+  }
+
+  // ============================================
+  // FLESH GROWTHS
+  // ============================================
+
+  for (let i = 0; i < 35; i++) {
+    const growth = new THREE.Mesh(
+      new THREE.SphereGeometry(
+        1 + Math.random() * 1.5,
+        8,
+        8
+      ),
+      fleshMaterial
+    );
+
+    growth.scale.y = 1.8;
+    growth.userData.fleshGrowth = true;
+    growth.userData.baseScaleY = 1.8;
+    growth.userData.phase = Math.random() * Math.PI * 2;
+
+    growth.position.set(
+      (Math.random() - 0.5) * 34,
+      1,
+      -45 - Math.random() * 55
+    );
+
+    environment.add(growth);
+    fleshGrowths.push(growth);
+  }
+
+  // ============================================
+  // CATHEDRAL LIGHTING
+  // ============================================
+
+  const redLight = new THREE.PointLight(
+    0xff1800,
+    180,
+    65
+  );
+
+  redLight.position.set(0, 12, -65);
+  environment.add(redLight);
+
+  const purpleLight = new THREE.PointLight(
+    0x7600ff,
+    100,
+    45
+  );
+
+  purpleLight.position.set(0, 8, -95);
+  environment.add(purpleLight);
+
+  const atmosphere = new THREE.HemisphereLight(
+    0x6b101c,
+    0x100307,
+    1.5
+  );
+
+  environment.add(atmosphere);
+
+  // ============================================
+  // FLOATING INFERNAL EMBERS
+  // ============================================
+
+  const emberMaterial = new THREE.MeshBasicMaterial({
+    color: 0xff4500
+  });
+
+  for (let i = 0; i < 90; i++) {
+    const ember = new THREE.Mesh(
+      new THREE.SphereGeometry(0.045, 5, 5),
+      emberMaterial
+    );
+
+    ember.position.set(
+      (Math.random() - 0.5) * 45,
+      Math.random() * 12,
+      -45 - Math.random() * 55
+    );
+
+    ember.userData.floatSpeed =
+      0.3 + Math.random() * 0.8;
+
+    ember.userData.drift =
+      Math.random() * Math.PI * 2;
+
+    environment.add(ember);
+    embers.push(ember);
+  }
+
+  environment.userData.embers = embers;
+  environment.userData.fleshGrowths = fleshGrowths;
+
+  // Start hidden until Chapter II is entered
+  environment.visible = false;
+
+  scene.add(environment);
+
+  // ============================================
+  // ENVIRONMENT UPDATE
+  // ============================================
+
+  function update(dt, elapsedTime) {
+    if (!environment.visible) return;
+
+    for (const ember of embers) {
+      ember.position.y +=
+        ember.userData.floatSpeed * dt;
+
+      ember.position.x +=
+        Math.sin(
+          elapsedTime * 2 + ember.userData.drift
+        ) * 0.35 * dt;
+
+      if (ember.position.y > 14) {
+        ember.position.y = 0.2;
+
+        ember.position.x =
+          (Math.random() - 0.5) * 45;
+      }
+    }
+
+    for (const growth of fleshGrowths) {
+      growth.scale.y =
+        growth.userData.baseScaleY +
+        Math.sin(
+          elapsedTime * 1.5 + growth.userData.phase
+        ) * 0.12;
+    }
+  }
+
+  return {
+    environment,
+    update
+  };
+}

@@ -1,0 +1,148 @@
+// =====================================
+// MOBILE COMBAT CONTROLS
+// =====================================
+
+function setupMobileCombatButton(id, action) {
+  const button = document.getElementById(''start'')
+
+import { azraelArmorMaterial } from './textures.js';
+
+function createAzrael()
+
+  button.addEventListener('pointerdown', event => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    button.classList.add('pressed');
+
+    if (!state.active || state.gameOver) return;
+
+    action();
+  });
+
+  function releaseButton() {
+    button.classList.remove('pressed');
+  }
+
+  button.addEventListener('pointerup', releaseButton);
+  button.addEventListener('pointercancel', releaseButton);
+  button.addEventListener('lostpointercapture', releaseButton);
+}
+
+// JUMP
+setupMobileCombatButton('jumpButton', () => {
+  if (state.grounded) {
+    state.verticalVelocity = 6.3;
+    state.grounded = false;
+  }
+});
+
+// CHAIN BLADE
+setupMobileCombatButton('attackButton', () => {
+  performAttack(false);
+});
+// =====================================
+// AZRAEL — DIRECTIONAL DODGE
+// =====================================
+
+const data = lustBoss.userData;
+
+// THREE-PHASE BOSS SYSTEM
+
+const healthRatio = data.health / data.maxHealth;
+
+if (healthRatio > 0.70) {
+  data.phase = 1;
+  data.speed = 1.05;
+} else if (healthRatio > 0.35) {
+  if (data.phase !== 2) {
+    showMessage('PHASE II — THE TEMPTATION');
+    setBossMusicPhase(2);
+  }
+
+  data.phase = 2;
+  data.speed = 1.65;
+} else if (healthRatio > 0) {
+  if (data.phase !== 3) {
+    showMessage('PHASE III — THE UNBOUND');
+    setBossMusicPhase(3);
+  }
+
+  data.phase = 3;
+  data.speed = 2.35;
+}
+
+// Faster attacks in later phases
+const attackRate =
+  data.phase === 3 ? 1.65 :
+  data.phase = 2 ? 2.3 : 3.2;
+data.attackTimer = attackRate;
+const bossHUD = document.getElementById('bossHUD');
+const bossHealthFill = document.getElementById('bossHealthFill');
+const bossHealthText = document.getElementById('bossHealthText');
+
+bossHUD.style.display = 'block';
+
+const healthPercent = Math.max(
+  0,
+  (data.health / data.maxHealth) * 100
+);
+
+bossHealthFill.style.width = healthPercent + '%';
+
+bossHealthText.textContent =
+  Math.ceil(data.health) + ' / ' + data.maxHealth;
+function performDodge() {
+  
+
+  if (!state.active || state.gameOver) return;
+
+  // Prevent dodge spam
+  if (state.dodgeCooldown > 0) return;
+
+  const forward = new THREE.Vector3(
+    -Math.sin(state.yaw),
+    0,
+    -Math.cos(state.yaw)
+  );
+
+  const right = new THREE.Vector3(
+    Math.cos(state.yaw),
+    0,
+    -Math.sin(state.yaw)
+  );
+
+  const direction = new THREE.Vector3();
+
+  // Keyboard direction
+  if (keys.KeyW) direction.add(forward);
+  if (keys.KeyS) direction.sub(forward);
+  if (keys.KeyD) direction.add(right);
+  if (keys.KeyA) direction.sub(right);
+
+  // Mobile joystick direction
+  direction.addScaledVector(forward, -state.touchMove.y);
+  direction.addScaledVector(right, state.touchMove.x);
+
+  // No directional input = dodge forward
+  if (direction.lengthSq() < 0.01) {
+    direction.copy(forward);
+  }
+
+  direction.normalize();
+
+  state.dodgeDirection.copy(direction);
+  state.dodgeTimer = 0.22;
+  state.dodgeCooldown = 0.85;
+
+  // Quick weapon movement feedback
+  weaponRig.rotation.z = -0.65;
+
+}
+// WRATH STRIKE
+setupMobileCombatButton('wrathButton', () => {
+  setupMobileCombatButton('dodgeButton', () => {
+    performDodge();
+  });
+  performAttack(true);
+});

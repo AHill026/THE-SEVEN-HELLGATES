@@ -1,0 +1,60 @@
+// =====================================
+// SEVEN HELLGATES — MAIN MENU MUSIC
+// =====================================
+
+let menuMusicPlaying = false;
+let menuMusicNodes = [];
+
+function startHellgateMenuMusic() {
+  if (menuMusicPlaying) return;
+
+  if (audioContext.state === 'suspended') {
+    audioContext.resume();
+  }
+
+  menuMusicPlaying = true;
+
+  const master = audioContext.createGain();
+  master.gain.value = 0.0001;
+  master.connect(audioContext.destination);
+
+  master.gain.setTargetAtTime(
+    0.22,
+    audioContext.currentTime,
+    2
+  );
+
+  menuMusicNodes.push(master);
+
+  const notes = [55, 65.41, 82.41, 110];
+
+  notes.forEach((frequency, index) => {
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+
+    oscillator.type = index === 0 ? 'sawtooth' : 'triangle';
+    oscillator.frequency.value = frequency;
+
+    gain.gain.value = 0.035;
+
+    oscillator.connect(gain);
+    gain.connect(master);
+
+    oscillator.start();
+
+    menuMusicNodes.push(oscillator, gain);
+  });
+
+  const choir = audioContext.createOscillator();
+  const choirGain = audioContext.createGain();
+
+  choir.type = 'sine';
+  choir.frequency.value = 164.81;
+  choirGain.gain.value = 0.025;
+
+  choir.connect(choirGain);
+  choirGain.connect(master);
+  choir.start();
+
+  menuMusicNodes.push(choir, choirGain);
+}

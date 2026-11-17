@@ -1,0 +1,45 @@
+/* =================================
+   MOBILE JOYSTICK CONTROLS
+================================= */
+
+/* FORCE MOBILE CONTROLS ON SMALL SCREENS */
+@media screen and (max-width: 900px) {
+  #home-screen
+  {
+  canvas{}
+  mobileControls.style.display = 'none';
+  #mobileButtons {
+    position: absolute;
+    right: 145px;
+    bottom: 45px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: auto;
+    touch-action: none;
+  }
+
+  #mobileButtons button {
+    min-width: 76px;
+    min-height: 48px;
+    border: 2px solid rgba(255,220,180,.8);
+    border-radius: 14px;
+    background: linear-gradient(145deg,#84251f,#351013);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.6);
+    pointer-events: auto;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: transform .08s, filter .08s;
+  }
+
+  #mobileButtons button:active,
+  #mobileButtons button.pressed {
+    transform: scale(.91);
+    filter: brightness(1.7);
+    background: #d34b27;
+  }

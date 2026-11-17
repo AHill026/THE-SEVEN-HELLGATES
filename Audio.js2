@@ -1,0 +1,98 @@
+// =====================================
+// SOVEREIGN OF DESIRE — DEATH SOUND
+// =====================================
+
+let bossDeathPlayed = false;
+
+export function playBossDeathSting() {
+  if (!limboContext || !limboMaster) return;
+  if (bossDeathPlayed) return;
+
+  bossDeathPlayed = true;
+
+  const now = limboContext.currentTime;
+
+  // Fade out strings and choir
+  if (bossStringGain) {
+    bossStringGain.gain.setTargetAtTime(0.0001, now, 0.8);
+  }
+
+  if (bossChoirGain) {
+    bossChoirGain.gain.setTargetAtTime(0.0001, now, 0.8);
+  }
+
+  // Deep descending death impact
+  const impact = limboContext.createOscillator();
+  const impactGain = limboContext.createGain();
+
+  impact.type = 'sawtooth';
+  impact.frequency.setValueAtTime(75, now);
+  impact.frequency.exponentialRampToValueAtTime(22, now + 1.5);
+
+  impactGain.gain.setValueAtTime(0.0001, now);
+  impactGain.gain.exponentialRampToValueAtTime(0.5, now + 0.06);
+  impactGain.gain.exponentialRampToValueAtTime(0.0001, now + 2);
+
+  impact.connect(impactGain);
+  impactGain.connect(limboMaster);
+
+  impact.start(now);
+  impact.stop(now + 2.1);
+}
+// =====================================
+// THE SEVEN HELLGATES
+// SOVEREIGN BOSS AUDIO EXPANSION
+// =====================================
+
+let bossAudioContext = null;
+let bossAudioMaster = null;
+
+export function initializeBossAudio() {
+  if (bossAudioContext) return;
+
+  const AudioContextClass =
+    window.AudioContext || window.webkitAudioContext;
+
+  bossAudioContext = new AudioContextClass();
+
+  bossAudioMaster = bossAudioContext.createGain();
+  bossAudioMaster.gain.value = 0.35;
+
+  bossAudioMaster.connect(
+    bossAudioContext.destination
+  );
+
+  bossAudioContext.resume();
+}
+
+export function playBossDeathSting() {
+  if (!bossAudioContext || !bossAudioMaster) return;
+
+  const now = bossAudioContext.currentTime;
+
+  const impact = bossAudioContext.createOscillator();
+  const volume = bossAudioContext.createGain();
+
+  impact.type = 'sawtooth';
+  impact.frequency.setValueAtTime(75, now);
+  impact.frequency.exponentialRampToValueAtTime(
+    22,
+    now + 1.5
+  );
+
+  volume.gain.setValueAtTime(0.0001, now);
+  volume.gain.exponentialRampToValueAtTime(
+    0.5,
+    now + 0.06
+  );
+  volume.gain.exponentialRampToValueAtTime(
+    0.0001,
+    now + 2
+  );
+
+  impact.connect(volume);
+  volume.connect(bossAudioMaster);
+
+  impact.start(now);
+  impact.stop(now + 2.1);
+}

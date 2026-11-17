@@ -1,0 +1,82 @@
+
+let gluttonyChapterEntered = false;
+gluttonyEnemies
+let gluttonyEnemies = [];
+
+function enterGluttonyChapter() {
+  addEventListener('mousedown'
+  function enterGluttonyChapter() {
+    if (gluttonyChapterEntered) return;
+    if (!state.lustBossDefeated) return;
+
+    gluttonyChapterEntered = true;
+
+    // Create the cinematic fade
+    const fade = document.createElement('div');
+
+    fade.style.position = 'fixed';
+    fade.style.inset = '0';
+    fade.style.background = '#000';
+    fade.style.opacity = '0';
+    fade.style.transition = 'opacity 1.5s ease';
+    fade.style.zIndex = '99999';
+    fade.style.pointerEvents = 'none';
+
+    document.body.appendChild(fade);
+
+    // Begin transition
+    requestAnimationFrame(() => {
+      fade.style.opacity = '1';
+    });
+
+    state.active = false;
+
+    // Load Chapter II while the screen is black
+    setTimeout(() => {
+      initializeGluttonyChapter();
+      positionAzraelForGluttony();
+
+      // Restore gameplay
+      state.active = true;
+
+      showMessage('CHAPTER II — GLUTTONY');
+
+      // Reveal the new realm
+      fade.style.opacity = '0';
+
+      setTimeout(() => {
+        fade.remove();
+      }, 1600);
+
+    }, 1500);
+  }
+  
+  if (gluttonyChapterEntered) return;
+
+  gluttonyChapterEntered = true;
+  state.active = false;
+  // PREPARE CHAPTER II
+  initializeGluttonyChapter();
+
+  // MOVE AZRAEL INTO THE NEW REALM
+  positionAzraelForGluttony();
+
+  showMessage('CHAPTER II — GLUTTONY');
+
+  // Fade the screen to black
+  const fade = document.createElement('div');
+
+  fade.style.position = 'fixed';
+  fade.style.inset = '0';
+  fade.style.background = '#000';
+  fade.style.opacity = '0';
+  fade.style.transition = 'opacity 1.5s ease';
+  fade.style.zIndex = '99999';
+  fade.style.pointerEvents = 'none';
+
+  document.body.appendChild(fade);
+
+  requestAnimationFrame(() => {
+    fade.style.opacity = '1';
+  });
+}

@@ -1,0 +1,23 @@
+// Save references for boss animations
+boss.userData.parts = {
+  hammer: hammer,
+  heart: heart,
+  ribs: ribs,
+  body: body
+};
+
+// Animation state
+boss.userData.animations = {
+  hammerImpact: {
+    active: false,
+    time: 0,
+    duration: 1.6,
+    originalY: hammer.position.y
+  },
+
+  heartExposure: {
+    active: false,
+    time: 0,
+    duration: 2.5
+  }
+};

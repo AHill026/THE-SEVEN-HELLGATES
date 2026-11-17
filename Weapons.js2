@@ -1,0 +1,68 @@
+
+export function createInfernalRipperCombat({
+  camera,
+  state,
+  ripperRig,
+  enemies,
+  spawnBurst,
+  showMessage
+}) {
+  let damageCooldown = 0;
+
+  function start() {
+    if (state.activeWeapon !== 'infernalripper') return;
+
+    ripperRig.userData.active = true;
+    ripperRig.userData.glow.intensity = 4;
+    showMessage('INFERNAL RIPPER — ENGAGED!');
+  }
+
+  function stop() {
+    ripperRig.userData.active = false;
+    ripperRig.userData.glow.intensity = 2;
+  }
+
+  function update(dt) {
+    if (!ripperRig.userData.active) return;
+
+    damageCooldown -= dt;
+
+    if (damageCooldown > 0) return;
+
+    damageCooldown = 0.25;
+
+    const forward = new THREE.Vector3(0, 0, -1)
+      .applyQuaternion(camera.quaternion);
+
+    enemies.forEach(enemy => {
+      if (!enemy.userData.alive) return;
+
+      const direction = enemy.position.clone()
+        .sub(camera.position);
+
+      const distance = direction.length();
+
+      if (distance > 2.8) return;
+
+      direction.normalize();
+
+      if (forward.dot(direction) < 0.65) return;
+
+      enemy.userData.health -= 12;
+
+      if (enemy.userData.health <= 0) {
+        enemy.userData.health = 0;
+        enemy.userData.alive = false;
+        enemy.userData.dying = true;
+        enemy.userData.deathTimer = 0;
+
+        spawnBurst(enemy.position.clone(), 0xff2200);
+        state.kills++;
+
+        showMessage('INFERNAL RIPPER EXECUTION!');
+      }
+    });
+  }
+
+  return { start, stop, update };
+}
